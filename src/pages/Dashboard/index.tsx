@@ -1,5 +1,6 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 import logoImg from '../../assets/logo.svg';
@@ -19,18 +20,21 @@ const Dashboard: React.FC = () => {
   const [newRepo, setNewRepo] = useState('');
   const [inputError, setInputError] = useState('');
   const [repositories, setRepositories] = useState<Repository[]>(() => {
-    const storagedRepositories = localStorage.getItem('@GithubExplorer:repositories');
+    const storagedRepositories = localStorage.getItem(
+      '@GithubExplorer:repositories',
+    );
 
     if (storagedRepositories) {
       return JSON.parse(storagedRepositories);
     }
-    return []
+    return [];
   });
 
   useEffect(() => {
     localStorage.setItem(
       '@GithubExplorer:repositories',
-      JSON.stringify(repositories))
+      JSON.stringify(repositories),
+    );
   }, [repositories]);
 
   async function handleAddRepository(event: FormEvent): Promise<void> {
@@ -45,9 +49,8 @@ const Dashboard: React.FC = () => {
       const response = await api.get<Repository>(`/repos/${newRepo}`);
 
       setRepositories([...repositories, response.data]);
-      setNewRepo('')
+      setNewRepo('');
       setInputError('');
-
     } catch (err) {
       setInputError('Erro na busca por esse repositório');
     }
@@ -71,7 +74,10 @@ const Dashboard: React.FC = () => {
 
       <Repositories>
         {repositories.map(repository => (
-          <a href="teste" key={repository.full_name}>
+          <Link
+            to={`/repository/${repository.full_name}`}
+            key={repository.full_name}
+          >
             <img
               src={repository.owner.avatar_url}
               alt={repository.owner.login}
@@ -83,7 +89,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             <FiChevronRight size={20} />
-          </a>
+          </Link>
         ))}
       </Repositories>
     </>
